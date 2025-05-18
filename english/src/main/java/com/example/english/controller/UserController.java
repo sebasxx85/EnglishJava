@@ -15,7 +15,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService service;
-
+    //Constructor no funciono lombok
     public UserController(UserService service) {
         this.service = service;
     }
