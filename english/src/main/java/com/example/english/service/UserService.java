@@ -35,6 +35,11 @@ public class UserService {
         return repository.findByName(name)
                 .map(user -> mapper.map(user, UserDto.class));
     }
+    //Los usuarios no tienen email por ahora
+    public Optional<UserDto> findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(user -> mapper.map(user, UserDto.class));
+    }
 
     public UserDto create(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
