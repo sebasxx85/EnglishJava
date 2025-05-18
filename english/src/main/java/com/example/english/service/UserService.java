@@ -1,39 +1,47 @@
 package com.example.english.service;
 
+import com.example.english.dto.UserDto;
 import com.example.english.model.User;
 import com.example.english.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     private final UserRepository repository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final ModelMapper mapper;
 
-    @Autowired
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, ModelMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public List<User> findAll() {
-        return repository.findAll();
+    public List<UserDto> findAll() {
+        return repository.findAll()
+                .stream()
+                .map(user -> mapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
     }
 
-    public Optional<User> findByName(String name) {
-        return repository.findByName(name);
+    public Optional<UserDto> findByName(String name) {
+        return repository.findByName(name)
+                .map(user -> mapper.map(user, UserDto.class));
     }
 
-    public User create(User user) {
+    public UserDto create(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setAvatar("https://robohash.org/" + user.getName() + ".png");
         user.setScore(0);
         user.setLanguage("English");
-        return repository.save(user);
+        User saved = repository.save(user);
+        return mapper.map(saved, UserDto.class);
     }
 }
